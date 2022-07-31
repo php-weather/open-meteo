@@ -25,7 +25,7 @@ composer require php-weather/open-meteo
 
 ```php
 $httpClient = new \Http\Adapter\Guzzle7\Client();
-$openMeteo = new \PhpWeather\Provider\open-meteo\OpenMeteo($httpClient);
+$openMeteo = new \PhpWeather\Provider\OpenMeteo\OpenMeteo($httpClient);
 
 $latitude = 47.873;
 $longitude = 8.004;
