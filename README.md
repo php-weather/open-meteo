@@ -1,8 +1,10 @@
 # PHP Weather Provider for Open Meteo
 
 ![Packagist Version](https://img.shields.io/packagist/v/php-weather/open-meteo)  
+![PHP Weather Common Version](https://img.shields.io/badge/phpweather--common-0.3.*-brightgreen)
+![PHP Weather HTTP Provider Version](https://img.shields.io/badge/phpweather--http--provider-0.4.*-brightgreen)
 ![GitHub Release Date](https://img.shields.io/github/release-date/php-weather/open-meteo)
-![GitHub commits since tagged version](https://img.shields.io/github/commits-since/php-weather/open-meteo/0.1.0)
+![GitHub commits since tagged version](https://img.shields.io/github/commits-since/php-weather/open-meteo/0.2.0)
 ![GitHub last commit](https://img.shields.io/github/last-commit/php-weather/open-meteo)  
 ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/php-weather/open-meteo/PHP%20Composer)
 ![GitHub](https://img.shields.io/github/license/php-weather/open-meteo)
