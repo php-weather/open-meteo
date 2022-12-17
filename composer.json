@@ -14,10 +14,10 @@
     }
   ],
   "require": {
-    "php": "8.0.*|8.1.*",
+    "php": "^8",
     "ext-json": "*",
-    "php-weather/http-provider": "0.4.*",
-    "php-weather/common": "0.3.*"
+    "php-weather/http-provider": "0.5.*",
+    "php-weather/core": "0.4.*"
   },
   "require-dev": {
     "jetbrains/phpstorm-attributes": "^1.0",
