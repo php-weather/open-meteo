@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace PhpWeather\Provider\OpenMeteo;
 
+use GuzzleHttp\Psr7\Stream;
 use Http\Client\HttpClient;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
@@ -38,7 +39,12 @@ class OpenMeteoTest extends TestCase
 
         $responseBodyString = file_get_contents(__DIR__.'/resources/currentWeather.json');
         $response = $this->createMock(ResponseInterface::class);
-        $response->expects(self::once())->method('getBody')->willReturn($responseBodyString);
+        if ($resource = fopen('data://text/plain,' . $responseBodyString, 'rb')) {
+            $reponseStream = new Stream($resource);
+        } else {
+            $this->fail();
+        }
+        $response->expects(self::once())->method('getBody')->willReturn($reponseStream);
         $this->client->expects(self::once())->method('sendRequest')->with($request)->willReturn($response);
 
         $currentWeather = $this->provider->getCurrentWeather($testQuery);
