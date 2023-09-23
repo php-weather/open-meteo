@@ -22,6 +22,20 @@ class OpenMeteo extends AbstractHttpProvider
      */
     private ?array $sources = null;
 
+    protected function getForecastWeatherQueryString(WeatherQuery $query): string
+    {
+        return sprintf(
+            'https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,pressure_msl,precipitation,weathercode,cloudcover,windspeed_10m,winddirection_10m&timezone=UTC&current_weather=true',
+            $query->getLatitude(),
+            $query->getLongitude()
+        );
+    }
+
+    protected function getHistoricalWeatherQueryString(WeatherQuery $query): string
+    {
+        return $this->getCurrentWeatherQueryString($query);
+    }
+
     protected function getCurrentWeatherQueryString(WeatherQuery $query): string
     {
         $startDate = $query->getDateTime();
@@ -42,20 +56,6 @@ class OpenMeteo extends AbstractHttpProvider
         );
     }
 
-    protected function getForecastWeatherQueryString(WeatherQuery $query): string
-    {
-        return sprintf(
-            'https://api.open-meteo.com/v1/forecast?latitude=%s&longitude=%s&hourly=temperature_2m,relativehumidity_2m,dewpoint_2m,apparent_temperature,pressure_msl,precipitation,weathercode,cloudcover,windspeed_10m,winddirection_10m&timezone=UTC&current_weather=true',
-            $query->getLatitude(),
-            $query->getLongitude()
-        );
-    }
-
-    protected function getHistoricalWeatherQueryString(WeatherQuery $query): string
-    {
-        return $this->getCurrentWeatherQueryString($query);
-    }
-
     protected function getHistoricalTimeLineWeatherQueryString(WeatherQuery $query): string
     {
         return $this->getCurrentWeatherQueryString($query);
@@ -69,6 +69,7 @@ class OpenMeteo extends AbstractHttpProvider
 
         $utc = new DateTimeZone('UTC');
         $currentDateTime = (new DateTime())->setTimezone($utc);
+        $currentWeather = null;
         if (
             array_key_exists('current_weather', $rawData) &&
             is_array($rawData['current_weather']) &&
@@ -78,10 +79,40 @@ class OpenMeteo extends AbstractHttpProvider
             if (is_int($currentTimestamp)) {
                 $currentDateTime->setTimestamp($currentTimestamp);
             }
+            $currentWeather = (new \PhpWeather\Common\Weather())
+                ->setLatitude($latitude)
+                ->setLongitude($longitude);
+            foreach ($this->getSources() as $source) {
+                $currentWeather->addSource($source);
+            }
+            $currentWeather->setUtcDateTime($currentDateTime);
+            $currentWeather->setType(Type::CURRENT);
+            if (array_key_exists('temperature', $rawData['current_weather'])) {
+                $currentWeather->setTemperature(
+                    UnitConverter::mapTemperature($rawData['current_weather']['temperature'], Unit::TEMPERATURE_CELSIUS, $units)
+                );
+            }
+            if (array_key_exists('windspeed', $rawData['current_weather'])) {
+                $currentWeather->setWindSpeed(
+                    UnitConverter::mapSpeed($rawData['current_weather']['windspeed'], Unit::SPEED_KMH, $units)
+                );
+            }
+            if (array_key_exists('winddirection', $rawData['current_weather'])) {
+                $currentWeather->setWindDirection(
+                    $rawData['current_weather']['winddirection']
+                );
+            }
+            if (array_key_exists('weathercode', $rawData['current_weather'])) {
+                $currentWeather->setWeathercode((int)$rawData['current_weather']['weathercode']);
+                $currentWeather->setIcon($this->mapIcon((int)$rawData['current_weather']['weathercode'], $currentDateTime, $latitude, $longitude));
+            }
         }
 
-        $weatherCollection = new \PhpWeather\Common\WeatherCollection();
 
+        $weatherCollection = new \PhpWeather\Common\WeatherCollection();
+        if ($currentWeather !== null) {
+            $weatherCollection->add($currentWeather);
+        }
         if (
             array_key_exists('hourly', $rawData) &&
             is_array($rawData['hourly']) &&
@@ -104,9 +135,10 @@ class OpenMeteo extends AbstractHttpProvider
                 }
                 $weatherDateTime->setTimestamp($weatherTimeStamp);
                 $weather->setUtcDateTime($weatherDateTime);
+
                 if ($weatherDateTime < $currentDateTime) {
                     $weather->setType(Type::HISTORICAL);
-                } elseif ($weatherDateTime == $currentDateTime) {
+                } elseif ($weatherDateTime === $currentDateTime) {
                     $weather->setType(Type::CURRENT);
                 } else {
                     $weather->setType(Type::FORECAST);
