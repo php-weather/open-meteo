@@ -16,11 +16,10 @@
   "require": {
     "php": "^8",
     "ext-json": "*",
-    "php-weather/http-provider": "0.5.*",
+    "php-weather/http-provider": "0.6.*",
     "php-weather/core": "0.4.*"
   },
   "require-dev": {
-    "jetbrains/phpstorm-attributes": "^1.0",
     "php-http/guzzle7-adapter": "^1.0",
     "phpstan/phpstan": "^1.6",
     "phpunit/phpunit": ">=8.0"

@@ -138,7 +138,7 @@ class OpenMeteo extends AbstractHttpProvider
 
                 if ($weatherDateTime < $currentDateTime) {
                     $weather->setType(Type::HISTORICAL);
-                } elseif ($weatherDateTime === $currentDateTime) {
+                } elseif ($weatherDateTime == $currentDateTime) {
                     $weather->setType(Type::CURRENT);
                 } else {
                     $weather->setType(Type::FORECAST);
