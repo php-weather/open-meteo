@@ -21,7 +21,7 @@
   },
   "require-dev": {
     "php-http/guzzle7-adapter": "^1.0",
-    "phpstan/phpstan": "^1.6",
+    "phpstan/phpstan": "^1.6 || ^2.0",
     "phpunit/phpunit": ">=8.0"
   },
   "autoload": {
