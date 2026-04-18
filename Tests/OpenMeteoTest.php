@@ -7,6 +7,7 @@ use GuzzleHttp\Psr7\Stream;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PhpWeather\Common\WeatherQuery;
+use PhpWeather\Exception;
 use Psr\Http\Client\ClientInterface;
 use Psr\Http\Message\RequestFactoryInterface;
 use Psr\Http\Message\RequestInterface;
@@ -26,6 +27,9 @@ class OpenMeteoTest extends TestCase
         $this->provider = new OpenMeteo($this->client, $this->requestFactory);
     }
 
+    /**
+     * @throws Exception
+     */
     public function testCurrentWeather(): void
     {
         $latitude = 47.8739259;
